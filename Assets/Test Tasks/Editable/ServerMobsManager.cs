@@ -25,6 +25,7 @@ namespace TestTask.Editable
             MonsterData = new MonsterData(monsterId, monsterType, monsterMaxHealth, monsterCurrentHealth);
             MonsterData.MonsterDeath += OnMonsterDied;
 
+            Debug.Log($"ServerMobsManager: MonsterData: Id: {MonsterData.MonsterId}, Type: {MonsterData.MonsterType}, Max Health: {MonsterData.MonsterMaxHealth}, Current Health: {MonsterData.MonsterCurrentHealth}");
             return MonsterData;
         }
 

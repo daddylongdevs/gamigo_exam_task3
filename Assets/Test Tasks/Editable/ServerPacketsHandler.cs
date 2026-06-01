@@ -18,7 +18,15 @@ namespace TestTask.Editable
             Debug.Log("ServerPacketsHandler: MonsterDataRequest");
 
             MonsterData monsterData = ServerMock.Instance.ServerMobsManager.SpawnMonster();
-            SendMonsterResponse(monsterData);
+            SendNewMonsterSpawnedResponse(monsterData);
+        }
+
+        public static void MonsterDamageRequest(Packet packet)
+        {
+            Debug.Log("ServerPacketsHandler: MonsterDamageRequest");
+
+            int monsterId = packet.ReadInt();
+            ServerMock.Instance.ServerMobsManager.ApplyDamageToMonster(monsterId);
         }
 
         #endregion
@@ -35,9 +43,24 @@ namespace TestTask.Editable
             }
         }
 
-        public static void SendMonsterResponse(MonsterData monsterData)
+        public static void SendNewMonsterSpawnedResponse(MonsterData monsterData)
         {
             Debug.Log("ServerPacketsHandler: SendMonsterResponse");
+
+            using (Packet packet = new Packet(2))
+            {
+                packet.Write(monsterData.MonsterId);
+                packet.Write((int)monsterData.MonsterType);
+                packet.Write(monsterData.MonsterMaxHealth);
+                packet.Write(monsterData.MonsterCurrentHealth);
+
+                ServerMock.Instance.PacketSenderServer.SendToClient(packet);
+            }
+        }
+
+        public static void SendMonsterDamagedResponse(MonsterData monsterData)
+        {
+            Debug.Log("ServerPacketsHandler: SendMonsterDamagedResponse");
 
             using (Packet packet = new Packet(2))
             {

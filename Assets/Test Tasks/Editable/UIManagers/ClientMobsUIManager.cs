@@ -15,15 +15,18 @@ namespace TestTask.Editable
         [field: SerializeField] private Image MonsterIcon;
         [field: SerializeField] private Image MonsterHealthBar;
         [field: SerializeField] private TMP_Text MonsterName;
+        [field: SerializeField] private TMP_Text MonsterHealthText;
 
         void OnEnable()
         {
-            ClientMobsManager.OnMonsterDataReceived += OnNewMonsterSpawned;
+            ClientMobsManager.OnNewMonsterDataReceived += OnNewMonsterSpawned;
+            ClientMobsManager.OnCurrentMonsterDataUpdated += OnCurrentMonsterDataUpdated;
         }
 
         void OnDisable()
         {
-            ClientMobsManager.OnMonsterDataReceived -= OnNewMonsterSpawned;
+            ClientMobsManager.OnNewMonsterDataReceived -= OnNewMonsterSpawned;
+            ClientMobsManager.OnCurrentMonsterDataUpdated -= OnCurrentMonsterDataUpdated;
         }
 
         public void OnNewMonsterSpawned(MonsterData monsterData)
@@ -33,6 +36,15 @@ namespace TestTask.Editable
             UpdateMonsterName(monsterData.MonsterName);
             UpdateMonsterIcon(monsterData.MonsterName);
             UpdateMonsterHealthBar(monsterData.MonsterCurrentHealth / monsterData.MonsterMaxHealth);
+            UpdateMonsterHealthText(monsterData.MonsterCurrentHealth, monsterData.MonsterMaxHealth);
+        }
+
+        public void OnCurrentMonsterDataUpdated(MonsterData monsterData)
+        {
+            Debug.Log("ClientMobsUIManager: OnCurrentMonsterDataUpdated: " + monsterData.MonsterName);
+
+            UpdateMonsterHealthBar(monsterData.MonsterCurrentHealth / monsterData.MonsterMaxHealth);
+            UpdateMonsterHealthText(monsterData.MonsterCurrentHealth, monsterData.MonsterMaxHealth);
         }
 
         private void UpdateMonsterName(string monsterName)
@@ -49,6 +61,11 @@ namespace TestTask.Editable
         {
             float fillAmount = Mathf.Clamp01(healthPercentage);
             MonsterHealthBar.fillAmount = fillAmount;
+        }
+
+        private void UpdateMonsterHealthText(float currentHealth, float maxHealth)
+        {
+            MonsterHealthText.text = $"{currentHealth} / {maxHealth}";
         }
 
         private Sprite GetMonsterIconSprite(string monsterName)

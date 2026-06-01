@@ -29,10 +29,39 @@ namespace TestTask.Editable
             return MonsterData;
         }
 
+        public void ApplyDamageToMonster(int monsterId)
+        {
+            if (MonsterData == null)
+            {
+                // This is a deadend where the "game" is essentially stuck. No monster, but no spawning either.
+                // Apply a potential fix here.
+                Debug.LogError("ServerMobsManager: ApplyDamageToMonster: MonsterData is null");
+                return;
+            }
+
+            if (MonsterData.MonsterId != monsterId)
+            {
+                // This is also a potential deadend since we don't have a way to attempt to spawn a new monster from client side apart from death or log in.
+                // On mismatch of id, server monster can no longer be damaged. And the client will never receive updates on the new monster.
+                Debug.LogError($"ServerMobsManager: ApplyDamageToMonster: MonsterId mismatch: {MonsterData.MonsterId} != {monsterId}");
+                return;
+            }
+
+            float appliedDamage = Random.Range(10, 20);
+            MonsterData.TakeDamage(appliedDamage);
+
+            if (MonsterData.MonsterId == monsterId)
+            {
+                ServerPacketsHandler.SendMonsterDamagedResponse(MonsterData);
+            }
+        }
+
         public void OnMonsterDied()
         {
             MonsterData.MonsterDeath -= OnMonsterDied;
             MonsterData = SpawnMonster();
+
+            ServerPacketsHandler.SendNewMonsterSpawnedResponse(MonsterData);
         }
     }
 }  

@@ -16,7 +16,7 @@ namespace TestTask.Editable
             ClientManager.Instance.SetClientLogInStatus(responseCode, clientId);
         }
 
-        public static void MonsterDataReceived(Packet packet)
+        public static void NewMonsterDataReceived(Packet packet)
         {
             Debug.Log("ClientPacketsHandler: MonsterDataReceived");
 
@@ -25,15 +25,29 @@ namespace TestTask.Editable
             float monsterMaxHealth = packet.ReadFloat();
             float monsterCurrentHealth = packet.ReadFloat();
 
-            MonsterData newMonsterData = new MonsterData(monsterId, MonsterNameExtensions.MonsterTypeFromId(monsterType), monsterMaxHealth, monsterCurrentHealth);
+            MonsterData newMonsterData = new MonsterData(monsterId, (MonsterNames)monsterType, monsterMaxHealth, monsterCurrentHealth);
 
-            ClientManager.Instance.ClientMobsManager.NotifyMonsterDataReceived(newMonsterData);
-            
+            ClientManager.Instance.ClientMobsManager.NotifyNewMonsterDataReceived(newMonsterData);
+
             Debug.Log($"ClientPacketsHandler: MonsterDataReceived: Id: {monsterId}, Type: {monsterType}, Max Health: {monsterMaxHealth}, Current Health: {monsterCurrentHealth}");
+        }
+
+        public static void UpdatedMonsterDataReceived(Packet packet)
+        {
+            Debug.Log("ClientPacketsHandler: UpdatedMonsterDataReceived");
+
+            int monsterId = packet.ReadInt();
+            int monsterType = packet.ReadInt();
+            float monsterMaxHealth = packet.ReadFloat();
+            float monsterCurrentHealth = packet.ReadFloat();
+
+            MonsterData newMonsterData = new MonsterData(monsterId, (MonsterNames)monsterType, monsterMaxHealth, monsterCurrentHealth);
+
+            ClientManager.Instance.ClientMobsManager.NotifyMonsterDataUpdated(newMonsterData);
         }
         #endregion
 
-        #region Packet Senders
+            #region Packet Senders
         public static void SendLoginRequest()
         {
             Packet packet = new Packet(1);
@@ -45,6 +59,15 @@ namespace TestTask.Editable
             Debug.Log("ClientPacketsHandler: SendMonsterDataRequest");
 
             Packet packet = new Packet(2);
+            ClientManager.Instance.PacketSenderClient.SendToServer(packet);
+        }
+
+        public static void SendMonsterDamageRequest(int monsterId)
+        {
+            Debug.Log($"ClientPacketsHandler: SendMonsterDamageRequest: Monster ID: {monsterId}");
+
+            Packet packet = new Packet(3);
+            packet.Write(monsterId);
             ClientManager.Instance.PacketSenderClient.SendToServer(packet);
         }
         #endregion

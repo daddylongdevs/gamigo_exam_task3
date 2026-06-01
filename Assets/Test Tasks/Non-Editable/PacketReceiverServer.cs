@@ -1,3 +1,4 @@
+using System;
 using TestTask.Editable;
 using UnityEngine;
 
@@ -38,6 +39,7 @@ namespace TestTask.NonEditable
                 using (Packet packet = new Packet(packetBytes))
                 {
                     int pID = packet.ReadInt();
+                    Debug.Log($"DataHandler: packageId: {pID}");
                     PacketHandlerLookup.OnServerPacketHandlers[pID](packet);
                 }
 

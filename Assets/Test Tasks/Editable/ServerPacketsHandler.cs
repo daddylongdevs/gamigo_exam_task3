@@ -17,7 +17,7 @@ namespace TestTask.Editable
         {
             Debug.Log("ServerPacketsHandler: MonsterDataRequest");
 
-            MonsterData monsterData = ServerMock.Instance.ServerMobsManager.MonsterData;
+            MonsterData monsterData = ServerMock.Instance.ServerMobsManager.SpawnMonster();
             SendMonsterResponse(monsterData);
         }
 

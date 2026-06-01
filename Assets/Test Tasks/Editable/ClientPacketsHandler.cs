@@ -24,6 +24,10 @@ namespace TestTask.Editable
             int monsterType = packet.ReadInt();
             float monsterMaxHealth = packet.ReadFloat();
             float monsterCurrentHealth = packet.ReadFloat();
+
+            MonsterData newMonsterData = new MonsterData(monsterId, MonsterNameExtensions.MonsterTypeFromId(monsterType), monsterMaxHealth, monsterCurrentHealth);
+
+            ClientManager.Instance.ClientMobsManager.NotifyMonsterDataReceived(newMonsterData);
             
             Debug.Log($"ClientPacketsHandler: MonsterDataReceived: Id: {monsterId}, Type: {monsterType}, Max Health: {monsterMaxHealth}, Current Health: {monsterCurrentHealth}");
         }

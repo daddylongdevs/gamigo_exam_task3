@@ -1,6 +1,7 @@
 using TestTask.NonEditable;
 using UnityEngine;
-using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TestTask.Editable
 {
@@ -13,7 +14,7 @@ namespace TestTask.Editable
             SendLoginResponse(clientLogInResponse, clientId);
         }
 
-        public static void MonsterDataRequest(Packet packet)
+        public static void OnMonsterDataRequest(Packet packet)
         {
             Debug.Log("ServerPacketsHandler: MonsterDataRequest");
 
@@ -21,12 +22,19 @@ namespace TestTask.Editable
             SendNewMonsterSpawnedResponse(monsterData);
         }
 
-        public static void MonsterDamageRequest(Packet packet)
+        public static void OnMonsterDamageRequest(Packet packet)
         {
             Debug.Log("ServerPacketsHandler: MonsterDamageRequest");
 
             int monsterId = packet.ReadInt();
             ServerMock.Instance.ServerMobsManager.ApplyDamageToMonster(monsterId);
+        }
+
+        public static void OnColorSetRequest(Packet packet)
+        {
+            Debug.Log("ServerPacketsHandler: ColorSetRequest");
+
+            SendColorSetResponse(ServerMock.Instance.ServerColors.GetServerColors());
         }
 
         #endregion
@@ -73,6 +81,25 @@ namespace TestTask.Editable
             }
         }
 
+        public static void SendColorSetResponse(IEnumerable<Color> colors)
+        {
+            Debug.Log("ServerPacketsHandler: SendColorSetResponse");
+
+            using (Packet packet = new Packet(4))
+            {
+                packet.Write(colors.Count()); // Write the number of colors to the packet
+
+                foreach (Color color in colors)
+                {
+                    packet.Write(color.r);
+                    packet.Write(color.g);
+                    packet.Write(color.b);
+                    packet.Write(color.a);
+                }
+
+                ServerMock.Instance.PacketSenderServer.SendToClient(packet);
+            }
+        }
         #endregion
     }
 }

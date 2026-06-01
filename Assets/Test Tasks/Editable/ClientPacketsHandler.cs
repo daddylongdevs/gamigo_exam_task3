@@ -45,9 +45,30 @@ namespace TestTask.Editable
 
             ClientManager.Instance.ClientMobsManager.NotifyMonsterDataUpdated(newMonsterData);
         }
+
+        public static void OnColorSetReceived(Packet packet)
+        {
+            Debug.Log("ClientPacketsHandler: ColorSetReceived");
+
+            int colorCount = packet.ReadInt();
+            Color[] colors = new Color[colorCount];
+
+            for (int i = 0; i < colorCount; i++)
+            {
+                float r = packet.ReadFloat();
+                float g = packet.ReadFloat();
+                float b = packet.ReadFloat();
+                float a = packet.ReadFloat();
+
+                Color newColor = new Color(r, g, b, a);
+                colors[i] = newColor;
+            }
+
+            ClientManager.Instance.ClientColorManager.NotifyColorSetReceived(colors);
+        }
         #endregion
 
-            #region Packet Senders
+        #region Packet Senders
         public static void SendLoginRequest()
         {
             Packet packet = new Packet(1);
@@ -68,6 +89,14 @@ namespace TestTask.Editable
 
             Packet packet = new Packet(3);
             packet.Write(monsterId);
+            ClientManager.Instance.PacketSenderClient.SendToServer(packet);
+        }
+
+        public static void SendColorSetRequest()
+        {
+            Debug.Log("ClientPacketsHandler: SendColorSetRequest");
+
+            Packet packet = new Packet(4);
             ClientManager.Instance.PacketSenderClient.SendToServer(packet);
         }
         #endregion
